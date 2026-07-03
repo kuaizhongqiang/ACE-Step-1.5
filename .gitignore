@@ -6,6 +6,10 @@ Folder.jpg
 
 
 data/
+!data/all_style.txt
+!data/main_style.txt
+!data/genres.ts
+!data/news.json
 *.mp3
 *.wav
 *.pkf
@@ -261,3 +265,27 @@ docs/.vitepress/dist/
 docs/.vitepress/cache/
 docs/en/awesome.md
 package-lock.json
+
+# === Node.js 层 ===
+# Server 日志
+logs/
+server/logs/
+
+# 前端构建产物
+ui/dist/
+
+# 音频文件 (用户生成的)
+public/audio/*
+!public/audio/.gitkeep
+
+# 环境变量 (本地)
+.env
+
+# Vite
+ui/.vite/
+
+# CodeBuddy
+.codebuddy/
+
+# === 模型权重 ===
+# checkpoints/ 已在上面忽略

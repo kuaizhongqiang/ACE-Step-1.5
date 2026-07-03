@@ -1,0 +1,11 @@
+{
+  "name": "ace-step-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsx watch src/index.ts",
+    "start": "npx tsx src/index.ts",
+    "typecheck": "npx tsc --noEmit"
+  }
+}

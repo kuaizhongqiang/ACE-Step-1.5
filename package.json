@@ -1,12 +1,19 @@
 {
+  "name": "ace-step",
+  "version": "0.1.0",
   "private": true,
+  "description": "ACE-Step 全栈音乐生成工具 — Python 引擎 + Node.js 编排 + React 前端",
+  "workspaces": ["server", "ui"],
   "scripts": {
-    "docs:fetch": "node scripts/fetch-awesome.mjs",
-    "docs:dev": "npm run docs:fetch && vitepress dev docs",
-    "docs:build": "npm run docs:fetch && vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "dev": "node server/cli.mjs dev",
+    "dev:server": "cd server && npx tsx src/index.ts",
+    "dev:ui": "cd ui && npx vite --port 3000",
+    "build": "cd ui && npx vite build",
+    "start": "node server/cli.mjs start",
+    "typecheck": "npx tsc --noEmit -p ui/tsconfig.json && cd server && npx tsc --noEmit",
+    "setup": "npm install && cd server && npm install && cd ../ui && npm install"
   },
-  "devDependencies": {
-    "vitepress": "^1.6.3"
+  "engines": {
+    "node": ">=18"
   }
 }
