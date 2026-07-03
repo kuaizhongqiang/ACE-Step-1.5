@@ -264,7 +264,7 @@ node_modules/
 docs/.vitepress/dist/
 docs/.vitepress/cache/
 docs/en/awesome.md
-package-lock.json
+# package-lock.json CI 需要 - 已跟踪
 
 # === Node.js 层 ===
 # 日志
