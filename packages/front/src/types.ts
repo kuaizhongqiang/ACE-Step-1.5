@@ -1,13 +1,33 @@
+/**
+ * 前端类型定义
+ * 通用类型从 @acestep/shared 导入并重新导出
+ * 仅保留前端特有的类型扩展
+ */
+
+// ── 从 shared 导入并重新导出 ─────────────────────────────────────────────────
+export type {
+  Comment,
+  GenerationJob,
+  GenerationParams,
+  PlayerState,
+  View,
+  AuthResponse,
+  SearchResult,
+  ContactFormData,
+} from '@acestep/shared';
+
+// ── 前端特有 Song 类型（扩展 shared × 前端渲染字段）─────────────────────────
+// TODO(M2): 类型归一化 — 统一为 @acestep/shared 后移除本地定义
 export interface Song {
   id: string;
   title: string;
   lyrics: string;
   style: string;
   coverUrl: string;
-  duration: string;
-  createdAt: Date;
+  duration: string;        // 前端格式 "2:30"，不同于 shared 的 duration?: number
+  createdAt: Date;          // Date 对象，不同于 shared 的 string
   isGenerating?: boolean;
-  queuePosition?: number; // Position in queue (undefined = actively generating, number = waiting in queue)
+  queuePosition?: number;
   progress?: number;
   stage?: string;
   generationParams?: any;
@@ -22,6 +42,7 @@ export interface Song {
   ditModel?: string;
 }
 
+// ── 前端特有 Playlist 类型 ────────────────────────────────────────────────────
 export interface Playlist {
   id: string;
   name: string;
@@ -38,97 +59,7 @@ export interface Playlist {
   songs?: any[];
 }
 
-export interface Comment {
-  id: string;
-  songId: string;
-  userId: string;
-  username: string;
-  content: string;
-  createdAt: Date;
-}
-
-export interface GenerationParams {
-  // Mode
-  customMode: boolean;
-
-  // Simple Mode
-  songDescription?: string;
-
-  // Custom Mode
-  prompt: string;
-  lyrics: string;
-  style: string;
-  title: string;
-  ditModel?: string;
-
-  // Common
-  instrumental: boolean;
-  vocalLanguage: string;
-
-  // Music Parameters
-  bpm: number;
-  keyScale: string;
-  timeSignature: string;
-  duration: number;
-
-  // Generation Settings
-  inferenceSteps: number;
-  guidanceScale: number;
-  batchSize: number;
-  randomSeed: boolean;
-  seed: number;
-  thinking: boolean;
-  enhance?: boolean;
-  audioFormat: 'mp3' | 'flac';
-  inferMethod: 'ode' | 'sde';
-  shift: number;
-
-  // LM Parameters
-  lmTemperature: number;
-  lmCfgScale: number;
-  lmTopK: number;
-  lmTopP: number;
-  lmNegativePrompt: string;
-  lmBackend?: 'pt' | 'vllm';
-  lmModel?: string;
-
-  // Expert Parameters
-  referenceAudioUrl?: string;
-  sourceAudioUrl?: string;
-  referenceAudioTitle?: string;
-  sourceAudioTitle?: string;
-  audioCodes?: string;
-  repaintingStart?: number;
-  repaintingEnd?: number;
-  instruction?: string;
-  audioCoverStrength?: number;
-  taskType?: string;
-  useAdg?: boolean;
-  cfgIntervalStart?: number;
-  cfgIntervalEnd?: number;
-  customTimesteps?: string;
-  useCotMetas?: boolean;
-  useCotCaption?: boolean;
-  useCotLanguage?: boolean;
-  autogen?: boolean;
-  constrainedDecodingDebug?: boolean;
-  allowLmBatch?: boolean;
-  getScores?: boolean;
-  getLrc?: boolean;
-  scoreScale?: number;
-  lmBatchChunkSize?: number;
-  trackName?: string;
-  completeTrackClasses?: string[];
-  isFormatCaption?: boolean;
-}
-
-export interface PlayerState {
-  currentSong: Song | null;
-  isPlaying: boolean;
-  progress: number;
-  volume: number;
-}
-
+// ── 前端特有 User/UserProfile（字段形状与 shared 不同）────────────────────────
 export interface User {
   id: string;
   username: string;
@@ -150,6 +81,3 @@ export interface UserProfile {
     totalLikes: number;
   };
 }
-
-// Simplified views for ACE-Step UI
-export type View = 'create' | 'library' | 'profile' | 'song' | 'playlist' | 'search' | 'news';
