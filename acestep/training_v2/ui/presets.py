@@ -9,8 +9,7 @@ paths, device settings, or model-derived timestep params).  They live in:
     Global:    ``~/.config/sidestep/presets/``      (user-global, fallback)
 
 New user presets are saved to the **local** directory (``./presets/`` in
-the current working directory).  This keeps presets visible, portable,
-and persistent across Docker container restarts.
+the current working directory).  This keeps presets visible and portable.
 
 The preset schema uses wizard field names for readability.  Unknown keys
 are silently ignored on load; missing keys fall back to defaults.
@@ -250,8 +249,7 @@ def save_preset(name: str, description: str, answers: Dict[str, Any]) -> Path:
     """Save a preset to the project-local presets directory.
 
     Presets are saved to ``./presets/`` (relative to the current working
-    directory) so they're visible in the project, portable, and persist
-    across Docker container restarts.
+    directory) so they're visible in the project and portable.
 
     Args:
         name: Preset name (used as filename stem, sanitized).

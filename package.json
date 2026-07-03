@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "description": "ACE-Step 全栈音乐生成工具 — Python 引擎 + Node.js 编排 + React 前端",
-  "workspaces": ["server", "ui"],
+  "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "node server/cli.mjs dev",
-    "dev:server": "cd server && npx tsx src/index.ts",
-    "dev:ui": "cd ui && npx vite --port 3000",
-    "build": "cd ui && npx vite build",
-    "start": "node server/cli.mjs start",
-    "typecheck": "npx tsc --noEmit -p ui/tsconfig.json && cd server && npx tsc --noEmit",
-    "setup": "npm install && cd server && npm install && cd ../ui && npm install"
+    "dev": "echo '请手动启动: uv run acestep & npx tsx packages/server/src/index.ts & npm run dev -w packages/front'",
+    "dev:python": "uv run acestep",
+    "dev:server": "npm run dev -w packages/server",
+    "dev:front": "npm run dev -w packages/front",
+    "build": "npm run build -w packages/front",
+    "start": "node packages/cli/src/cli.mjs start",
+    "typecheck": "npm run typecheck -w packages/engine && npm run typecheck -w packages/server && npm run typecheck -w packages/front && npm run typecheck -w packages/shared",
+    "setup": "node packages/cli/src/cli.mjs install",
+    "clean": "node packages/cli/src/cli.mjs clean"
   },
   "engines": {
     "node": ">=18"

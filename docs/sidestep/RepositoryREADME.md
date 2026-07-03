@@ -300,7 +300,7 @@ Side-Step ships with seven built-in presets:
 | `vram_12gb` | Tight tier -- Rank 32, AdamW8bit, Encoder offloading |
 | `vram_8gb` | Minimal tier -- Rank 16, AdamW8bit, Encoder offloading, High grad accumulation |
 
-User presets are saved to `./presets/` (project-local, next to your training data). This ensures presets persist across Docker runs and stay visible alongside your project. Presets from the global location (`~/.config/sidestep/presets/`) are also scanned as a fallback. You can import/export presets as JSON files to share with others.
+User presets are saved to `./presets/` (project-local, next to your training data). This ensures presets stay visible alongside your project. Presets from the global location (`~/.config/sidestep/presets/`) are also scanned as a fallback. You can import/export presets as JSON files to share with others.
 
 ---
 

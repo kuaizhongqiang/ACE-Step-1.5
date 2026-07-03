@@ -1,22 +1,20 @@
 #!/usr/bin/env sh
 set -eu
 
-# Prevent cross-polluted PR branches by ensuring the current branch is
-# independently based on upstream/main and does not reuse non-main commits
-# from other remote feature/fix/docs branches.
+# 防止 PR 分支交叉污染
+# 确保当前分支独立基于 origin/main，不混入其他 feature/fix/docs 分支的提交
 
 current_branch="$(git symbolic-ref --quiet --short HEAD || true)"
 [ -z "$current_branch" ] && exit 0
 
-base_ref="${PR_BASE_REF:-upstream/main}"
+base_ref="${PR_BASE_REF:-origin/main}"
 if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
-  # If upstream/main is unavailable locally, do not block pushes.
   exit 0
 fi
 
 if ! git merge-base --is-ancestor "$base_ref" HEAD; then
-  echo "ERROR: '$current_branch' is not based on '$base_ref'."
-  echo "Create PR branches from upstream/main to keep PRs independent."
+  echo "错误: '$current_branch' 不基于 '$base_ref'。"
+  echo "请从 origin/main 创建 PR 分支。"
   exit 1
 fi
 
@@ -32,9 +30,9 @@ for commit in $ahead_commits; do
   for remote_branch in $remote_branches; do
     [ "$remote_branch" = "origin/$current_branch" ] && continue
     if git merge-base --is-ancestor "$commit" "$remote_branch"; then
-      echo "ERROR: Commit $commit is also present in $remote_branch."
-      echo "This branch appears stacked or cross-polluted."
-      echo "Recreate from '$base_ref' and cherry-pick only intended commits."
+      echo "错误: 提交 $commit 同时存在于 $remote_branch。"
+      echo "该分支存在交叉污染。"
+      echo "请从 '$base_ref' 重新创建分支，只 cherry-pick 目标提交。"
       exit 1
     fi
   done

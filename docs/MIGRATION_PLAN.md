@@ -1,268 +1,220 @@
 # ACE-Step-1.5 迁移方案
 
-> 将 `kuaizhongqiang/ace-step-ui` 的 Node.js 层合并到 `kuaizhongqiang/ACE-Step-1.5`，
-> 形成 Python 引擎 + Node.js 编排 + React 前端的单体仓库。
-> `kuaizhongqiang/ace-step-ui` 改造完成后归档。
+> 将 `ace-step-ui` 合并到本仓库，重构为 4 包架构。
+> 核心原则：**功能只增不减、去容器化、CLI 主导、中文优先**。
 
 ---
 
-## 目标目录结构
+## 目标架构
 
 ```
-kuaizhongqiang/ACE-Step-1.5/
-│
-├── 🔒 Python 层 (不动)
-│   ├── acestep/                    # AI 引擎核心
-│   ├── openrouter/                 # OpenRouter API 服务
-│   ├── cli.py                      # 生成向导
-│   ├── train.py                    # 训练入口
-│   ├── generate_examples.py
-│   ├── profile_inference.py
-│   ├── pyproject.toml / uv.lock    # Python 依赖
-│   ├── requirements*.txt
-│   ├── docs/                       # 上游文档
-│   ├── assets/                     # 资源
-│   ├── examples/                   # 400+ 示例
-│   ├── scripts/                    # 辅助脚本
-│   └── Dockerfile* / docker-compose*
-│
-├── 🆕 Node.js 层 (从 ace-step-ui 迁移)
-│   ├── package.json                # 统一 Node.js 依赖 (frontend + server + CLI)
-│   ├── package-lock.json
-│   │
-│   ├── server/                     # Express 中间层
-│   │   ├── cli.mjs                  # CLI 入口
-│   │   ├── package.json             # server 独立依赖
-│   │   └── src/
-│   │       ├── index.ts             # Express 入口
-│   │       ├── config/
-│   │       │   └── index.ts
-│   │       ├── db/
-│   │       │   ├── migrate.ts
-│   │       │   ├── pool.ts
-│   │       │   └── sqlite.ts
-│   │       ├── middleware/
-│   │       │   └── auth.ts
-│   │       ├── routes/
-│   │       │   ├── songs.ts
-│   │       │   ├── generate.ts
-│   │       │   ├── playlists.ts
-│   │       │   ├── referenceTrack.ts
-│   │       │   └── contact.ts
-│   │       ├── services/
-│   │       │   ├── acestep.ts
-│   │       │   ├── deepseek.ts
-│   │       │   ├── generationQueue.ts
-│   │       │   ├── gradio-client.ts
-│   │       │   ├── cleanup.ts
-│   │       │   └── storage/
-│   │       │       ├── factory.ts
-│   │       │       ├── index.ts
-│   │       │       └── local.ts
-│   │       ├── scripts/
-│   │       │   ├── backfill-avatars.ts
-│   │       │   └── test-queue.ts
-│   │       └── cli/
-│   │           ├── daemon.mjs
-│   │           ├── env.mjs
-│   │           ├── exit-codes.mjs
-│   │           ├── help.mjs
-│   │           ├── output.mjs
-│   │           ├── pid.mjs
-│   │           └── commands/
-│   │               ├── config.mjs
-│   │               ├── dev.mjs
-│   │               ├── health.mjs
-│   │               ├── info.mjs
-│   │               ├── list.mjs
-│   │               ├── logs.mjs
-│   │               ├── start.mjs
-│   │               ├── status.mjs
-│   │               └── stop.mjs
-│   │
-│   ├── ui/                         # React 前端
-│   │   ├── App.tsx
-│   │   ├── index.tsx
-│   │   ├── index.html
-│   │   ├── index.css
-│   │   ├── types.ts
-│   │   ├── global.d.ts
-│   │   ├── vite-env.d.ts
-│   │   ├── vite.config.ts
-│   │   ├── tailwind.config.js
-│   │   ├── postcss.config.js
-│   │   ├── tsconfig.json
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── i18n/
-│   │   ├── services/
-│   │   └── utils/
-│   │
-│   ├── data/                       # 共享数据
-│   │   ├── all_style.txt
-│   │   ├── main_style.txt
-│   │   ├── genres.ts
-│   │   └── news.json
-│   │
-│   ├── bin/
-│   │   └── cli.js                  # npx 入口
-│   │
-│   └── public/                     # 前端构建输出 + 音频
-│       ├── audio/
-│       └── (dist/)
-│
-├── 🔧 配置文件
-│   ├── .env                        # 统一环境变量 (服务端 + Python 配置合并)
-│   ├── .env.example
-│   ├── .gitignore                  # 合并后的 gitignore
-│   ├── cliff.toml
-│   ├── start-all.bat
-│   ├── start-all.sh
-│   └── setup.sh / setup.bat
-│
-├── 📄 文档 (重写)
-│   ├── README.md                   # 中文重写
-│   ├── CODEBUDDY.md                # AI Agent 指南
-│   ├── AGENTS.md                   # 保留，增加 Node.js 层说明
-│   ├── CONTRIBUTING.md
-│   └── LICENSE
-│
-└── ❌ 删除 (迁移后可清理的启动脚本)
-    ├── start_gradio_ui.bat  (所有 16 个 .bat)
-    ├── start_gradio_ui.sh   (所有 18 个 .sh)
-    ├── start_api_server.*
-    ├── check_update.*
-    ├── quick_test.*
-    ├── test_env_detection.*
-    ├── test_git_update.*
-    ├── merge_config.*
-    ├── run_api_server.sh
-    ├── run_openrouter_api_server.sh
-    ├── close_api_server.sh
-    └── install_uv.*
+ACE-Step-1.5/
+├── acestep/              # Python 引擎（不动）
+├── python/               # Python 运行时（uv 管理）
+├── packages/
+│   ├── engine/           # 核心：音频生成 + LLM + 模型管理 + 任务队列
+│   ├── server/           # 薄层：Express 路由 + JWT + SQLite
+│   ├── cli/              # 全局大脑：进程管理 + 命令行调用 + 状态查询
+│   └── front/            # 纯展示：React UI
+├── data/                 # 静态数据（风格列表、genres、news）
+├── public/               # 输出：音频文件 + front 构建产物
+├── docs/                 # 中文文档
+├── package.json          # npm workspaces: ["packages/*"]
+├── pyproject.toml        # uv 管理 Python 依赖
+└── .env                  # 统一环境变量
 ```
 
 ---
 
-## 迁移清单
+## 4 包职责
 
-### Phase 1: 基础结构 (目标: `npm install` 成功)
+| 包 | 干的事 | 不干的事 |
+|----|--------|---------|
+| **engine** | Gradio 客户端、参数映射、模型热切换、Python spawn 降级、音频存储、生成任务队列、DeepSeek LLM、类型定义 | 不碰数据库、不写路由 |
+| **server** | Express 路由、JWT 鉴权、SQLite CRUD、请求转发 engine | 不关心 Gradio 内部细节 |
+| **cli** | 进程启停（Python/Express/Vite）、日志查看、健康检查、`generate` 命令、配置管理 | 不写业务逻辑 |
+| **front** | React 组件、i18n（中文优先）、播放器、歌曲管理 UI | 不直接调 engine |
 
-| 操作 | 源 | 目标 |
-|------|---|------|
-| 创建目录 | — | `server/`, `ui/`, `data/`, `bin/`, `public/` |
-| 迁 server src | `ace-step-ui/server/src/` | `server/src/` |
-| 迁 CLI | `ace-step-ui/server/cli.mjs` | `server/cli.mjs` |
-| 迁 CLI 模块 | `ace-step-ui/server/src/cli/` | `server/src/cli/` |
-| 迁 Server 配置 | `ace-step-ui/server/package.json` | `server/package.json` |
-| 迁前端 | `ace-step-ui/components/` 等 | `ui/components/` |
-| 迁前端配置 | `ace-step-ui/` vite/ts/tailwind | `ui/` |
-| 迁服务层 | `ace-step-ui/services/` | `ui/services/` |
-| 根 package.json | 新建 Monorepo npm workspaces | — |
-| 合并 .gitignore | 两边的合并 | `.gitignore` |
-| 合并 .env.example | 两边合并 | `.env.example` |
+### 依赖关系
 
-### Phase 2: 功能对齐
-
-| 操作 | 说明 |
-|------|------|
-| `server/src/config/index.ts` | 更新路径引用 (指向相对路径) |
-| `ui/vite.config.ts` | 更新 API 代理 / root 引用 |
-| 全局类型引用更新 | `types.ts` 的相对导入 |
-| `deepseek.ts` | 保持，text-to-text 统一入口 |
-| Gradio 调用链路 | `acestep.ts` → 适配本仓库的 Gradio API 端口 |
-| `package.json` scripts | `dev`, `build`, `start` 等 |
-
-### Phase 3: CLI 统一
-
-| 操作 | 说明 |
-|------|------|
-| `cli.mjs` 新增命令 | `start engine` / `stop engine` 管理 Python 进程 |
-| `cli.mjs` 新增命令 | `generate` 族 (text/cover/reference) |
-| 删除 shell 脚本 | 34 个 .bat/.sh 全部删除 |
-| 新增 | `start-all.sh` / `start-all.bat` 一键启动 |
-
-### Phase 4: 文档 + 收尾
-
-| 操作 | 说明 |
-|------|------|
-| 重写 `README.md` | 中文 + 新架构说明 |
-| 更新 `AGENTS.md` | 增加 Node.js 层指南 |
-| 新增 `CODEBUDDY.md` | 全栈指引 |
-| 新增 `server/README.md` | 路由表 + CLI 命令 |
-| 新增 `ui/README.md` | 组件树 + 状态管理 |
-| 新增 `docs/MIGRATION_PLAN.md` | 即本文档 |
-| CI 更新 | `npm ci` + `tsc --noEmit` + `npm run build` |
-
-### Phase 5: 清理
-
-| 操作 | 说明 |
-|------|------|
-| 归档 `ace-step-ui` | 设为只读，README 加迁移公告 |
-| Theme-UI 打包配置 | 确认 `dist/` 路径正常 |
-| 发布策略 | 作为一个统一包发布 |
+```
+cli ────→ engine（启停进程、CLI 生成）
+cli ────→ server（健康检查 HTTP）
+server ─→ engine（API 生成请求）
+front ──→ server（HTTP API）
+```
 
 ---
 
-## 关键决策
+## 去容器化
 
-### 1. 包管理器双轨制
+- 删除 `Dockerfile`、`Dockerfile.jetson`、`docker-compose.yml`、`docker-compose.jetson.yml`
+- 删除 34 个 `.bat` / `.sh` 启动脚本
+- CLI 全权接管进程生命周期：`cli start engine` / `cli start server` / `cli dev`（一键全部）
+- `cli install` 负责首次环境准备（`uv sync` + `npm install`）
 
-```
-npm  → server/ + ui/ + CLI (Node.js 层)
-uv   → acestep/ + openrouter/ (Python 层)
+---
 
-根 package.json: workspaces = ["server", "ui"]
-```
+## 发布与安装
 
-### 2. .env 统一
+**从 npm 安装，不 clone 仓库。** `cli` 包是唯一对外的入口，发布到 npm。
 
-```env
-# === Python 引擎 ===
-ACESTEP_CONFIG_PATH=acestep-v15-turbo
-ACESTEP_LM_MODEL_PATH=acestep-5Hz-lm-1.7B
-PORT=7860                          # Gradio 端口
-LANGUAGE=zh
-
-# === Node.js 服务 ===
-SERVER_PORT=3001                   # Express 端口
-DEEPSEEK_API_KEY=sk-xxx
-ACESTEP_API_URL=http://localhost:7860  # Gradio 地址 (本仓库内)
-DATABASE_PATH=./data/songs.db
-
-# === 共享 ===
-JWT_SECRET=xxx
-NODE_ENV=production
+```bash
+npm install -g acestep        # 全局安装 CLI（薄壳，只装 Node 命令）
+acestep install                # 首次安装：拉 Python 引擎 + 依赖 + 模型
+acestep dev                    # 一键启动全部
 ```
 
-### 3. CLI 统一入口
+`acestep install` 做的事：
+
+1. 环境检测（python/node版本、GPU型号、VRAM）
+2. `pip install ace-step` → 装 Python 引擎
+3. `npm install` → 装 server + front 依赖
+4. 下载模型 → `checkpoints/`
+5. 生成 `.env` 配置文件
+6. 构建 front 生产包
+
+支持 `acestep install --skip-models` 跳过模型下载，手动 `acestep model download` 补。
+
+---
+
+## CLI 命令设计（面向 openclaw）
+
+CLI 需足够丰富，让 openclaw 能完全通过命令控制整个系统：
 
 ```
-node server/cli.mjs start          # 启动 Node.js Express
-node server/cli.mjs start engine   # 启动 Python Gradio
-node server/cli.mjs dev            # 一键启动全部 (Gradio + Express + Vite)
-node server/cli.mjs generate "描述" # 音乐生成
+cli install                # 首次安装：uv sync + npm install + 模型下载
+cli dev                    # 一键启动全部（engine + server + front）
+
+cli start engine           # 启动 Python Gradio
+cli start server           # 启动 Express API
+cli stop  engine           # 停止
+cli stop  server           # 停止
+cli restart engine         # 重启
+
+cli status                 # 全部运行状态
+cli health                 # 健康检查（engine + server + front 可访问性）
+cli logs                   # 实时日志（--engine / --server）
+cli info                   # 系统信息（GPU、模型列表、Python 路径）
+
+cli model list             # 列出已下载 / 可用模型
+cli model switch <name>    # 切换当前 DiT 模型
+cli model download <name>  # 下载指定模型
+
+cli generate "描述"        # CLI 直接生成音乐（调 engine）
+cli config                 # 查看 / 修改配置
+cli env                    # 环境诊断
+
+cli build                  # 构建 front 生产包
+cli clean                  # 清理临时文件 + 过期音频
 ```
 
-### 4. 不迁移的内容
+---
+
+## 类型归一
+
+`GenerationParams` 等类型只在 `packages/engine/src/types.ts` 定义一份。front 用到哪些字段自己按需引用，不强制全量同步。
+
+---
+
+## 中文改造
+
+- 所有文档 / 注释 / CLI 输出 / 前端默认语言 → 中文
+- `LANGUAGE=zh` 作为环境默认值
+- i18n 保留多语言能力，但中文为第一语言
+
+---
+
+## MILESTONE 1：结构跑通
+
+- 创建 `packages/engine`、`packages/server`、`packages/cli`、`packages/front`
+- 从 `ace-step-ui` 迁入代码，拆进对应包
+- `package.json` workspaces 配置
+- `npm install` 全量通过
+- 类型定义统一到 engine，三处重复消除
+- `acestep.ts` 拆分进 engine 内部模块
+
+## MILESTONE 2：功能就绪
+
+- engine 内部拆模块完毕，所有现有功能保持（Gradio + Python spawn 降级、模型切换、任务队列、DeepSeek）
+- server 减到薄层，只做路由转发 + DB
+- CLI 接管所有进程管理，删除 .bat/.sh
+- 路径修正：不再依赖外部 `ACESTEP_PATH`
+- 端到端：front → server → engine → Gradio → 音频输出
+
+## MILESTONE 3：CLI 强化 + 中文
+
+- CLI 完整命令列表实现
+- CLI 面向 openclaw 使用场景优化输出格式
+- 中文文档、中文界面默认
+- 去容器化完成：删除 Docker 相关文件
+- 归档 `ace-step-ui`
+
+---
+
+## 自动化：Issue / PR / CI / Test / Publish
+
+### Issue
+
+模板分三类：Bug、Feature、Question。自动打 `triage` 标签。openclaw 可扫描 issue 列表判断当前待处理事项。
+
+### PR
+
+- `main` 分支保护，PR 必须通过 CI 才能合并
+- CI 跑：`tsc --noEmit`（server + front）、`npm run build`（front）、Python unittest
+- PR 描述模板：改了啥 + 影响范围 + 测试说明
+
+### CI（GitHub Actions）
+
+```
+push / PR →
+  ├── python-test：uv sync → unittest
+  ├── typescript-check：tsc --noEmit (server + front)
+  └── front-build：npm run build
+```
+
+不做 Docker build（已去容器化）。
+
+### Test
+
+- Python：`uv run python -m unittest discover`，现有用例保持
+- Node：暂不要求单元测试（server 为薄转发层，核心逻辑在 engine），优先端到端验证
+- 禁止 mock 整个系统只为测一个单元——那是分解问题，重构边界
+
+### Tag
+
+PR 合并到 `main` 后自动打 tag：
+
+- CI 根据合并的 PR label 决定 bump 级别：
+  - `patch` → v1.0.0 → v1.0.1（Bug fix）
+  - `minor` → v1.0.0 → v1.1.0（Feature）
+  - `major` → v1.0.0 → v2.0.0（Breaking）
+- 无 label 时默认 `patch`
+- 同步更新根 `package.json` 和 `pyproject.toml` 版本号
+- tag 格式：`v{major}.{minor}.{patch}`，附带 release notes（从 PR 描述自动生成）
+
+openclaw 可通过 `git tag --sort=-v:refname` 快速判断当前版本。
+
+### Publish
+
+```bash
+# CLI 包发布到 npm
+cd packages/cli && npm publish
+
+# Python 引擎发布到 PyPI（如有需要）
+uv build && uv publish
+```
+
+手动触发，不走 CI 自动发布。
+
+---
+
+## 不迁移的内容
 
 | 内容 | 原因 |
 |------|------|
-| `audiomass-editor/` | 太大，作为可选扩展 |
-| `server/audio-editor/` | 同上，暂不迁移 |
-| `.github/` workflows | 重写 (适配新结构) |
+| `audiomass-editor/` | 体积大，作为可选扩展 |
+| `server/audio-editor/` | 同上 |
+| `Dockerfile*` `docker-compose*` | 去容器化 |
+| 34 个 `.bat`/`.sh` | CLI 替代 |
 | `package-lock.json` | 重新生成 |
-
----
-
-## 文件统计
-
-| 分类 | 迁移文件数 | 新增/重写 | 删除文件数 (启动脚本) |
-|------|-----------|-----------|---------------------|
-| Server | 21 | 0 | — |
-| CLI | 16 | 0 | — |
-| 前端 | 37 | 0 | — |
-| 数据 | 4 | 0 | — |
-| 配置/文档 | 12 | 5 (README 等) | — |
-| Shell 脚本 | — | 2 (start-all) | 34 (.bat/.sh) |
-| **合计** | **~90** | **~7** | **34** |

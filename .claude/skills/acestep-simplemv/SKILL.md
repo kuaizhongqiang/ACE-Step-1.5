@@ -131,24 +131,16 @@ When sending MV to chat platforms, use `--max-size` to auto-compress:
 
 The compression uses ffmpeg two-pass encoding to achieve the best quality within the size constraint.
 
-## Container / Docker Font Support
+## CJK Font Support
 
-When running in containers (e.g. OpenClaw), CJK fonts may not be pre-installed, causing lyrics to render as □ boxes. The script automatically:
+If CJK characters render as □ boxes, install Noto CJK fonts:
 
-1. **Detects** if CJK fonts are available (via `fc-list`)
-2. **Attempts to install** `fonts-noto-cjk` (Debian/Ubuntu), `font-noto-cjk` (Alpine), or `google-noto-sans-cjk-fonts` (Fedora/RHEL)
-3. **Falls back** with a warning and manual install instructions if auto-install fails
-
-If auto-install doesn't work, manually install fonts before rendering:
 ```bash
 # Debian/Ubuntu
 apt-get install -y fonts-noto-cjk
 
-# Alpine
-apk add font-noto-cjk
-
-# Fedora/RHEL
-dnf install -y google-noto-sans-cjk-fonts
+# macOS
+brew install font-noto-sans-cjk-sc
 ```
 
 ## File Naming
