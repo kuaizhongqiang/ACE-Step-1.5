@@ -1,9 +1,11 @@
 {
   "name": "ace-step",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "ACE-Step 全栈音乐生成工具 — Python 引擎 + Node.js 编排 + React 前端",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "echo '请手动启动: uv run acestep & npx tsx packages/server/src/index.ts & npm run dev -w packages/front'",
     "dev:python": "uv run acestep",
