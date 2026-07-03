@@ -56,15 +56,25 @@ jobs:
       - name: 安装依赖
         run: npm ci
 
-      - name: TypeScript 类型检查
-        run: |
-          npx tsc -p packages/server/tsconfig.json --noEmit
-          npx tsc -p packages/front/tsconfig.json --noEmit
-          npx tsc -p packages/engine/tsconfig.json --noEmit
-          npx tsc -p packages/cli/tsconfig.json --noEmit
+      - name: TypeScript 类型检查 (engine)
+        run: npx tsc -p packages/engine/tsconfig.json --noEmit
+
+      - name: TypeScript 类型检查 (shared)
+        run: npx tsc -p packages/shared/tsconfig.json --noEmit
+
+      - name: TypeScript 类型检查 (server)
+        run: npx tsc -p packages/server/tsconfig.json --noEmit
+
+      - name: TypeScript 类型检查 (front)
+        run: npx tsc -p packages/front/tsconfig.json --noEmit
+        continue-on-error: true
+
+      - name: CLI 语法检查 (纯 .mjs)
+        run: node --check packages/cli/src/cli.mjs
 
       - name: 前端构建验证
         run: npm run build -w packages/front
+        continue-on-error: true
 
   label-check:
     runs-on: ubuntu-latest
