@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: 检查 PR 标题是否符合 conventional commit 规范
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if echo "$TITLE" | grep -qE '^(feat|fix|chore|docs|refactor|perf|ci|test|style|revert)(\(.+\))?!?: .+'; then
+            echo "✅ PR 标题符合 conventional commit 规范"
+          else
+            echo "❌ PR 标题不符合 conventional commit 规范"
+            echo ""
+            echo "期望格式: type(scope): description"
+            echo "  支持的 type: feat, fix, chore, docs, refactor, perf, ci, test, style, revert"
+            echo ""
+            exit 1
+          fi
+
+  python-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: 安装 Python 依赖
+        run: uv sync
+
+      - name: 运行 Python unittest
+        run: uv run python -m unittest discover -s . -p "*_test.py"
+
+  typescript-check:
+    runs-on: ubuntu-latest
+    needs: commitlint
+    if: always() && (needs.commitlint.result == 'success' || needs.commitlint.result == 'skipped')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: TypeScript 类型检查
+        run: |
+          npx tsc -p packages/server/tsconfig.json --noEmit
+          npx tsc -p packages/front/tsconfig.json --noEmit
+          npx tsc -p packages/engine/tsconfig.json --noEmit
+          npx tsc -p packages/cli/tsconfig.json --noEmit
+
+      - name: 前端构建验证
+        run: npm run build -w packages/front
+
+  label-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 检查 PR label
+        run: |
+          LABELS='${{ toJson(github.event.pull_request.labels.*.name) }}'
+          echo "PR labels: $LABELS"
+          if echo "$LABELS" | grep -qE '"patch"|"minor"|"major"'; then
+            echo "✅ 已打版本 label"
+          else
+            echo "⚠️  未打版本 label，合并后默认 bump patch"
+          fi

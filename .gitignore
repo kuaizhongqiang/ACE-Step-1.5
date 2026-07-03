@@ -113,7 +113,7 @@ ipython_config.py
 #Pipfile.lock
 
 # UV
-#   uv.lock is tracked — needed for reproducible builds (Docker, CI).
+#   uv.lock is tracked — needed for reproducible builds (CI).
 # uv.lock
 
 # poetry
@@ -267,12 +267,11 @@ docs/en/awesome.md
 package-lock.json
 
 # === Node.js 层 ===
-# Server 日志
+# 日志
 logs/
-server/logs/
 
 # 前端构建产物
-ui/dist/
+packages/*/dist/
 
 # 音频文件 (用户生成的)
 public/audio/*
@@ -280,9 +279,13 @@ public/audio/*
 
 # 环境变量 (本地)
 .env
+.env.local
 
 # Vite
-ui/.vite/
+packages/*/.vite/
+
+# TypeScript 构建输出
+packages/*/dist/
 
 # CodeBuddy
 .codebuddy/

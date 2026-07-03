@@ -1,46 +1,40 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
+name: Bug Report
+about: 创建 Bug 报告帮助改进项目
+title: '[Bug] '
+labels: bug
 assignees: ''
-
 ---
 
-> **📚 Before submitting:** Have you tried [DeepWiki AI Assistant](https://deepwiki.com/ace-step/ACE-Step-1.5)?
-> DeepWiki can instantly help with installation, troubleshooting, and common issues!
-> See pinned issue #791 for more info.
+## 描述 Bug
 
-**Did you check DeepWiki?**
-- [ ] Yes, I checked DeepWiki but couldn't find a solution
-- [ ] No, this is a new bug not covered in the docs
+清晰描述 bug 是什么。
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## 复现步骤
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+1. 打开 '...'
+2. 点击 '...'
+3. 看到错误
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## 期望行为
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+你期望发生什么。
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+## 截图 / 日志
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+```
+粘贴日志或截图
+```
 
-**Additional context**
-Add any other context about the problem here.
+## 环境信息
+
+- **OS:** [Windows 10 / Ubuntu 22.04 / macOS]
+- **Node.js 版本:** [18 / 20 / 22]
+- **Python 版本:** [3.11 / 3.12]
+- **GPU 型号 & VRAM:** [RTX 3060 12GB]
+- **ACE-Step 版本:** [v1.5 / main branch]
+- **浏览器:** [Chrome 120 / Edge 120]
+
+## 补充说明
+
+其他上下文（之前是否正常工作？最近有改动？）。
