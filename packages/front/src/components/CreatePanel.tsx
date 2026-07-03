@@ -4,7 +4,7 @@ import { GenerationParams, Song } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../context/I18nContext';
 import { generateApi } from '../services/api';
-import { MAIN_STYLES } from '../data/genres';
+import { MAIN_STYLES } from '../../../../data/genres';
 import { EditableSlider } from './EditableSlider';
 
 interface ReferenceTrack {

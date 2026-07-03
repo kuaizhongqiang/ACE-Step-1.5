@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Newspaper, X, Star, Github } from 'lucide-react';
 import { useI18n } from '../context/I18nContext';
-import newsData from '../data/news.json';
+import newsData from '../../../../data/news.json';
 
 interface NewsItem {
   id: string;
