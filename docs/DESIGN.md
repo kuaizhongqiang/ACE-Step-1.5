@@ -594,11 +594,11 @@ packages/engine/src/
 ```
 
 **拆分规则**（遵循现有 AGENTS.md 的 ≤200 LOC 策略）：
-- `params.mjs` — 类型定义 + 参数映射逻辑
-- `client.mjs` — HTTP 调用 Gradio endpoint
-- `python.mjs` — Python subprocess fallback
-- `model.mjs` — DiT 模型管理
-- `queue.mjs` — 任务队列逻辑
+- `params.ts` — 类型定义 + 参数映射逻辑
+- `client.ts` — HTTP 调用 Gradio endpoint
+- `python.ts` — Python subprocess fallback
+- `model.ts` — DiT 模型管理
+- `queue.ts` — 任务队列逻辑
 
 ### 5.2 Step 2：CLI 进程管理
 
