@@ -27,9 +27,10 @@ export default async function statusCmd(flags) {
   }
 
   const allRunning = services.every(s => s.running);
+  const svcLabels = { server: '服务', engine: '引擎' };
   const lines = services.map(s =>
-    `  ${s.name.charAt(0).toUpperCase() + s.name.slice(1)}: ${s.running ? 'RUNNING' : 'STOPPED'}` +
-    (s.running ? ` (PID: ${s.pid}, Port: ${s.port}, Memory: ${s.memory})` : '')
+    `  ${svcLabels[s.name] || s.name}: ${s.running ? '运行中' : '已停止'}` +
+    (s.running ? ` (PID: ${s.pid}, 端口: ${s.port}, 内存: ${s.memory})` : '')
   );
 
   output.auto(

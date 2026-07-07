@@ -9,6 +9,7 @@ export {
   downloadAudioToBuffer,
   discoverEndpoints,
   checkSpaceHealth,
+  switchModelIfNeeded,
   cleanupJob,
   cleanupOldJobs,
   resetClient,
