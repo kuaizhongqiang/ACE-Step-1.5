@@ -1,6 +1,6 @@
 # ACE-Step-1.5 迁移方案
 
-> 将 `ace-step-ui` 合并到本仓库，重构为 4 包架构。
+> 已完成将 `ace-step-ui` 合并到本仓库，重构为 **5 包 Monorepo**（M1-M3）。
 > 核心原则：**功能只增不减、去容器化、CLI 主导、中文优先**。
 
 ---
@@ -12,10 +12,11 @@ ACE-Step-1.5/
 ├── acestep/              # Python 引擎（不动）
 ├── python/               # Python 运行时（uv 管理）
 ├── packages/
-│   ├── engine/           # 核心：音频生成 + LLM + 模型管理 + 任务队列
+│   ├── shared/           # 统一类型定义（@acestep/shared）
+│   ├── engine/           # 核心：Gradio API、任务队列、Python fallback、模型管理
 │   ├── server/           # 薄层：Express 路由 + JWT + SQLite
-│   ├── cli/              # 全局大脑：进程管理 + 命令行调用 + 状态查询
-│   └── front/            # 纯展示：React UI
+│   ├── cli/              # 全局大脑：进程管理 + 命令行 + 生成
+│   └── front/            # React 展示层：19 组件 + 3 Context + i18n
 ├── data/                 # 静态数据（风格列表、genres、news）
 ├── public/               # 输出：音频文件 + front 构建产物
 ├── docs/                 # 中文文档
@@ -26,14 +27,15 @@ ACE-Step-1.5/
 
 ---
 
-## 4 包职责
+## 5 包职责
 
 | 包 | 干的事 | 不干的事 |
 |----|--------|---------|
-| **engine** | Gradio 客户端、参数映射、模型热切换、Python spawn 降级、音频存储、生成任务队列、DeepSeek LLM、类型定义 | 不碰数据库、不写路由 |
+| **shared** | 统一类型定义、snake_case→camelCase 转换工具 | 不引入运行时依赖 |
+| **engine** | Gradio 客户端、参数映射、模型热切换、Python spawn 降级、音频存储、生成任务队列、DeepSeek LLM | 不碰数据库、不写路由 |
 | **server** | Express 路由、JWT 鉴权、SQLite CRUD、请求转发 engine | 不关心 Gradio 内部细节 |
-| **cli** | 进程启停（Python/Express/Vite）、日志查看、健康检查、`generate` 命令、配置管理 | 不写业务逻辑 |
-| **front** | React 组件、i18n（中文优先）、播放器、歌曲管理 UI | 不直接调 engine |
+| **cli** | 进程启停（Python/Express/Vite）、日志查看、健康检查、`generate`/`install`/`model` 等命令 | 不写业务逻辑 |
+| **front** | React 19 + Vite 6、19 组件、3 Context、i18n（中文优先） | 不直接调 engine |
 
 ### 依赖关系
 
@@ -125,30 +127,29 @@ cli clean                  # 清理临时文件 + 过期音频
 
 ---
 
-## MILESTONE 1：结构跑通
+## ✅ MILESTONE 1：结构跑通（v0.1.1 — 2026-07-03 完成）
 
-- 创建 `packages/engine`、`packages/server`、`packages/cli`、`packages/front`
-- 从 `ace-step-ui` 迁入代码，拆进对应包
-- `package.json` workspaces 配置
-- `npm install` 全量通过
-- 类型定义统一到 engine，三处重复消除
-- `acestep.ts` 拆分进 engine 内部模块
+- 创建 5 包目录（engine/server/cli/front/shared），删除空壳
+- 从 `ace-step-ui` 迁入全部代码
+- `npm install` + `npm run typecheck` 全量通过
+- 类型定义统一到 `@acestep/shared`
+- `acestep.ts` 拆分为 4 个模块（audio/params/python/model）
 
-## MILESTONE 2：功能就绪
+## ✅ MILESTONE 2：功能就绪（v0.2.0 — 2026-07-07 完成）
 
-- engine 内部拆模块完毕，所有现有功能保持（Gradio + Python spawn 降级、模型切换、任务队列、DeepSeek）
-- server 减到薄层，只做路由转发 + DB
-- CLI 接管所有进程管理，删除 .bat/.sh
-- 路径修正：不再依赖外部 `ACESTEP_PATH`
-- 端到端：front → server → engine → Gradio → 音频输出
+- 类型归一化：front/engine 全部引用 `@acestep/shared`
+- CLI 进程管理：`acestep start engine` / `stop engine` / `dev`
+- CreatePanel JSX 修复（恢复完整渲染）
+- 路径修正 + .env 单文件合并
+- 类型前向兼容（Omit 模式）
 
-## MILESTONE 3：CLI 强化 + 中文
+## ✅ MILESTONE 3：CLI 强化 + 中文（v0.1.4 — 2026-07-07 完成）
 
-- CLI 完整命令列表实现
-- CLI 面向 openclaw 使用场景优化输出格式
-- 中文文档、中文界面默认
-- 去容器化完成：删除 Docker 相关文件
+- CLI 完整 14 命令（install/model/generate/build/cleanup 等）
+- I18n 默认中文、index.html 中文化、meta 标签中文化
+- 去容器化完成：删除所有 Docker 文件 + 启动脚本
 - 归档 `ace-step-ui`
+- 所有 CLI 输出中文化
 
 ---
 
