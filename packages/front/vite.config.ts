@@ -38,6 +38,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        '@data': path.resolve(__dirname, '../../data'),
       }
     }
   };

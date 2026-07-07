@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Song, Playlist, playlistsApi, songsApi, getAudioUrl } from '../services/api';
+import { Song, Playlist } from '../types';
+import { playlistsApi, songsApi, getAudioUrl } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../context/I18nContext';
 import { ArrowLeft, Play, MoreHorizontal, Clock, Calendar, Shuffle, Trash2, Mic2, Music } from 'lucide-react';
@@ -15,8 +16,8 @@ interface PlaylistDetailProps {
 export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack, onPlaySong, onSelect, onNavigateToProfile }) => {
     const { user: currentUser, token } = useAuth();
     const { t } = useI18n();
-    const [playlist, setPlaylist] = useState<Playlist & { creator_avatar?: string } | null>(null);
-    const [songs, setSongs] = useState<Song[]>([]);
+    const [playlist, setPlaylist] = useState<Playlist | null>(null);
+    const [songs, setSongs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -35,17 +36,17 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBa
                 title: s.title,
                 lyrics: s.lyrics,
                 style: s.style,
-                coverUrl: s.cover_url || s.coverUrl || `https://picsum.photos/seed/${s.id}/400/400`,
-                audioUrl: getAudioUrl(s.audio_url || s.audioUrl, s.id),
+                coverUrl: s.coverUrl || `https://picsum.photos/seed/${s.id}/400/400`,
+                audioUrl: getAudioUrl(s.audioUrl, s.id),
                 duration: s.duration,
                 bpm: s.bpm,
                 tags: s.tags || [],
-                is_public: s.is_public || false,
-                likeCount: s.like_count || 0,
-                viewCount: s.view_count || 0,
+                isPublic: s.isPublic ?? true,
+                likeCount: s.likeCount || 0,
+                viewCount: s.viewCount || 0,
                 creator: s.creator,
-                created_at: s.created_at,
-                addedAt: s.added_at
+                createdAt: s.createdAt ? new Date(s.createdAt) : new Date(),
+                addedAt: s.addedAt
             }));
 
             setSongs(mappedSongs);

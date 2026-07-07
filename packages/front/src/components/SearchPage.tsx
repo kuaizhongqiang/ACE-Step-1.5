@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, Play, Pause, Heart, ChevronRight, ChevronLeft, Copy, Check, X, Loader2 } from 'lucide-react';
 import { Song, Playlist } from '../types';
-import { songsApi, usersApi, playlistsApi, searchApi, UserProfile, getAudioUrl } from '../services/api';
+import { songsApi, usersApi, playlistsApi, searchApi, getAudioUrl } from '../services/api';
+import type { UserProfile } from '../types';
 import { useI18n } from '../context/I18nContext';
-import { GENRE_KEYS } from '../data/genres';
+import { GENRE_KEYS } from '@data/genres';
 
 interface SearchPageProps {
   onPlaySong?: (song: Song, list?: Song[]) => void;
@@ -101,10 +102,10 @@ export const SearchPage: React.FC<SearchPageProps> = ({
         songsRes.value.songs.forEach((song: any) => {
           if (song.creator && !uniqueCreators.has(song.creator)) {
             uniqueCreators.set(song.creator, {
-              id: song.user_id || song.userId || song.creator,
+              id: song.userId || song.creator,
               username: song.creator,
-              created_at: song.created_at || song.createdAt,
-              avatar_url: song.creator_avatar || song.creatorAvatar || null,
+              createdAt: song.createdAt,
+              avatarUrl: song.creatorAvatar || null,
             });
           }
         });
@@ -402,7 +403,7 @@ export const SearchPage: React.FC<SearchPageProps> = ({
           <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-4">{t('genres')}</h2>
           <div className="flex flex-wrap gap-2">
             {GENRE_KEYS.map((genreKey) => {
-              const genreLabel = t(genreKey);
+              const genreLabel = t(genreKey as any);
               return (
                 <button
                   key={genreKey}
@@ -542,7 +543,7 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
     >
       <div className="w-[90px] h-[90px] mx-auto rounded-full overflow-hidden mb-2 ring-2 ring-transparent group-hover:ring-pink-500 transition-all shadow-lg">
         <img
-          src={creator.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${creator.username}`}
+          src={creator.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${creator.username}`}
           alt={creator.username}
           className="w-full h-full object-cover"
         />

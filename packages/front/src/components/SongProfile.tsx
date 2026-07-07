@@ -117,15 +117,15 @@ export const SongProfile: React.FC<SongProfileProps> = ({ songId, onBack, onPlay
                 duration: response.song.duration
                     ? `${Math.floor(response.song.duration / 60)}:${String(Math.floor(response.song.duration % 60)).padStart(2, '0')}`
                     : '0:00',
-                createdAt: new Date(response.song.created_at),
+                createdAt: new Date(response.song.createdAt || new Date().toISOString()),
                 tags: response.song.tags || [],
-                audioUrl: getAudioUrl(response.song.audio_url, response.song.id),
-                isPublic: response.song.is_public,
-                likeCount: response.song.like_count || 0,
-                viewCount: response.song.view_count || 0,
-                userId: response.song.user_id,
+                audioUrl: getAudioUrl(response.song.audioUrl, response.song.id),
+                isPublic: response.song.isPublic,
+                likeCount: response.song.likeCount || 0,
+                viewCount: response.song.viewCount || 0,
+                userId: response.song.userId,
                 creator: response.song.creator,
-                creator_avatar: response.song.creator_avatar,
+                creator_avatar: response.song.creatorAvatar,
             };
 
             setSong(transformedSong);

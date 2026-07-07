@@ -17,7 +17,7 @@ interface SongDropdownMenuProps {
     isOpen: boolean;
     onClose: () => void;
     isOwner?: boolean;
-    position?: 'left' | 'right';
+    position?: 'left' | 'right' | 'center';
     direction?: 'up' | 'down';
     onCreateVideo?: () => void;
     onEditAudio?: () => void;

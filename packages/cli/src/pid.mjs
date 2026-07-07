@@ -1,5 +1,6 @@
 /**
  * PID file management — cross-platform process detection
+ * Supports server (Express) and engine (Python Gradio) PIDs.
  */
 import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
@@ -8,23 +9,25 @@ import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const SERVER_DIR = join(__dirname, '..', '..');
-const PID_PATH = join(SERVER_DIR, 'logs', 'server.pid');
+const LOGS_DIR = join(__dirname, '..', '..', '..', 'logs');
 
-export function getPidPath() { return PID_PATH; }
-
-export function writePid(pid) {
-  if (isAlive(pid)) {
-    writeFileSync(PID_PATH, String(pid), 'utf-8');
-  }
+export function getPidPath(service = 'server') {
+  return join(LOGS_DIR, `${service}.pid`);
 }
 
-export function readPid() {
-  if (!existsSync(PID_PATH)) return null;
+export function readPid(service = 'server') {
+  const pidPath = getPidPath(service);
+  if (!existsSync(pidPath)) return null;
   try {
-    const pid = parseInt(readFileSync(PID_PATH, 'utf-8').trim(), 10);
+    const pid = parseInt(readFileSync(pidPath, 'utf-8').trim(), 10);
     return isNaN(pid) ? null : pid;
   } catch { return null; }
+}
+
+export function writePid(pid, service = 'server') {
+  if (isAlive(pid)) {
+    writeFileSync(getPidPath(service), String(pid), 'utf-8');
+  }
 }
 
 export function isAlive(pid) {
@@ -51,8 +54,15 @@ export function getProcessInfo(pid) {
   } catch { return { memory: 'N/A', uptime: 0, startedAt: '' }; }
 }
 
-export function cleanPid() {
-  try { if (existsSync(PID_PATH)) unlinkSync(PID_PATH); } catch {}
+export function cleanPid(service = 'server') {
+  try { if (existsSync(getPidPath(service))) unlinkSync(getPidPath(service)); } catch {}
 }
 
-export default { getPidPath, writePid, readPid, isAlive, getProcessInfo, cleanPid };
+export function readAllPids() {
+  return {
+    server: readPid('server'),
+    engine: readPid('engine'),
+  };
+}
+
+export default { getPidPath, readPid, writePid, isAlive, getProcessInfo, cleanPid, readAllPids };

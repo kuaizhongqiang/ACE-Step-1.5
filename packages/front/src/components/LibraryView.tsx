@@ -144,6 +144,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                     <SongDropdownMenu
                                         song={song}
                                         isOpen={false}
+                                        onClose={() => {}}
                                         isOwner={false}
                                         onCreateVideo={() => onOpenVideo?.(song)}
                                         onReusePrompt={() => onReusePrompt?.(song)}
@@ -209,6 +210,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                     <SongDropdownMenu
                                         song={song}
                                         isOpen={false}
+                                        onClose={() => {}}
                                         isOwner={false}
                                         onCreateVideo={() => onOpenVideo?.(song)}
                                         onReusePrompt={() => onReusePrompt?.(song)}

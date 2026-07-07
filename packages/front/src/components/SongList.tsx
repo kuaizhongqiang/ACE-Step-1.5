@@ -491,7 +491,14 @@ const SongItem: React.FC<SongItemProps> = ({
             setIsEditingTitle(false);
             // Update the parent component's song list
             if (onSongUpdate && response.song) {
-                onSongUpdate(response.song);
+                onSongUpdate({
+                    ...response.song,
+                    coverUrl: response.song.coverUrl || `https://picsum.photos/seed/${response.song.id}/400/400`,
+                    duration: typeof response.song.duration === 'number'
+                        ? `${Math.floor(response.song.duration / 60)}:${String(Math.floor(response.song.duration % 60)).padStart(2, '0')}`
+                        : '0:00',
+                    createdAt: response.song.createdAt ? new Date(response.song.createdAt) : new Date(),
+                } as Song);
             }
         } catch (error) {
             console.error('Failed to update title:', error);
@@ -749,13 +756,12 @@ const SongItem: React.FC<SongItemProps> = ({
                                 isOpen={showDropdown}
                                 onClose={() => setShowDropdown(false)}
                                 isOwner={isOwner}
-                                onCreateVideo={() => onOpenVideo?.(song)}
-                                onReusePrompt={onReusePrompt ? () => onReusePrompt?.(song) : undefined}
-                                onAddToPlaylist={() => onAddToPlaylist?.(song)}
-                                onDelete={() => onDelete?.(song)}
-                                
-                                onUseAsReference={() => onUseAsReference?.()}
-                                onCoverSong={() => onCoverSong?.()}
+                                onCreateVideo={() => { onOpenVideo?.(); }}
+                                onReusePrompt={() => { onReusePrompt?.(); }}
+                                onAddToPlaylist={() => { onAddToPlaylist?.(); }}
+                                onDelete={() => { onDelete?.(); }}
+                                onUseAsReference={() => { onUseAsReference?.(); }}
+                                onCoverSong={() => { onCoverSong?.(); }}
                             />
                         </div>
                     </div>

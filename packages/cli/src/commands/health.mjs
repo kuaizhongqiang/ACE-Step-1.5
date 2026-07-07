@@ -3,34 +3,49 @@ import output from '../output.mjs';
 import { readEnv } from '../env.mjs';
 
 export default async function healthCmd(flags, options) {
-  const port = options.port || getDefaultPort();
+  const serverPort = options.serverPort || getDefaultPort('server', '3001');
+  const enginePort = options.enginePort || getDefaultPort('engine', '7860');
 
-  try {
-    await httpGet(`http://localhost:${port}/health`);
-    output.auto('Health: OK (server)', { status: 'ok', service: 'ACE-Step UI API' });
-    output.exit(0);
-  } catch {
-    output.auto('Health: FAIL - server not running', { status: 'error', error: 'server_not_running' });
-    output.exit(2);
-  }
+  const results = await Promise.allSettled([
+    checkService('Server', `http://localhost:${serverPort}/health`),
+    checkService('Engine', `http://localhost:${enginePort}/health`),
+  ]);
+
+  const serverOk = results[0].status === 'fulfilled' && results[0].value;
+  const engineOk = results[1].status === 'fulfilled' && results[1].value;
+
+  const lines = [
+    `  Server: ${serverOk ? 'OK' : 'FAIL'}`,
+    `  Engine: ${engineOk ? 'OK' : 'FAIL'}`,
+  ];
+
+  output.auto(
+    ACE_STEP_ASCII + '\n' + lines.join('\n'),
+    { server: serverOk ? 'ok' : 'error', engine: engineOk ? 'ok' : 'error' }
+  );
+  output.exit(serverOk && engineOk ? 0 : 2);
 }
 
-function getDefaultPort() {
-  try {
-    const env = readEnv();
-    const portEntry = env.sections.server?.find(([k]) => k === 'PORT');
-    return portEntry?.[1] || '3001';
-  } catch {
-    return '3001';
-  }
-}
-
-function httpGet(url) {
-  return new Promise((resolve, reject) => {
-    http.get(url, res => {
-      let d = '';
-      res.on('data', c => d += c);
-      res.on('end', () => resolve(d));
-    }).on('error', reject);
+async function checkService(name, url) {
+  return new Promise((resolve) => {
+    const req = http.get(url, (res) => {
+      resolve(res.statusCode === 200);
+    });
+    req.on('error', () => resolve(false));
+    req.setTimeout(3000, () => { req.destroy(); resolve(false); });
+    req.end();
   });
 }
+
+function getDefaultPort(service, fallback) {
+  try {
+    const key = service === 'engine' ? 'GRADIO_PORT' : 'SERVER_PORT';
+    return process.env[key] || fallback;
+  } catch { return fallback; }
+}
+
+const ACE_STEP_ASCII = `
+  ╔══════════════════════════╗
+  ║      ACE-Step 1.5       ║
+  ╚══════════════════════════╝
+`;

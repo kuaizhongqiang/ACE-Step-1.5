@@ -3,7 +3,7 @@
  * 支持优先级、用户级配额、free/pro/unlimited 分层
  */
 
-import type { GenerationParams } from './acestep.js';
+import type { GenerationParams } from '@acestep/shared';
 
 type Tier = 'free' | 'pro' | 'unlimited';
 
