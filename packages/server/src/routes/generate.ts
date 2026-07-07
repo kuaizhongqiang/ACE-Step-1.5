@@ -6,6 +6,7 @@ import { pool } from '../db/pool.js';
 import { generateUUID } from '../db/sqlite.js';
 import { config } from '../config/index.js';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/auth.js';
+import type { GenerationParams } from '@acestep/shared';
 import { getGradioClient } from '@acestep/engine';
 import {
   generateMusicViaAPI,
@@ -57,64 +58,6 @@ const audioUpload = multer({
   },
 });
 
-interface GenerateBody {
-  customMode: boolean;
-  songDescription?: string;
-  lyrics: string;
-  style: string;
-  title: string;
-  instrumental: boolean;
-  vocalLanguage?: string;
-  duration?: number;
-  bpm?: number;
-  keyScale?: string;
-  timeSignature?: string;
-  inferenceSteps?: number;
-  guidanceScale?: number;
-  batchSize?: number;
-  randomSeed?: boolean;
-  seed?: number;
-  thinking?: boolean;
-  audioFormat?: 'mp3' | 'flac';
-  inferMethod?: 'ode' | 'sde';
-  shift?: number;
-  lmTemperature?: number;
-  lmCfgScale?: number;
-  lmTopK?: number;
-  lmTopP?: number;
-  lmNegativePrompt?: string;
-  lmBackend?: 'pt' | 'vllm';
-  lmModel?: string;
-  referenceAudioUrl?: string;
-  sourceAudioUrl?: string;
-  referenceAudioTitle?: string;
-  sourceAudioTitle?: string;
-  audioCodes?: string;
-  repaintingStart?: number;
-  repaintingEnd?: number;
-  instruction?: string;
-  audioCoverStrength?: number;
-  taskType?: string;
-  useAdg?: boolean;
-  cfgIntervalStart?: number;
-  cfgIntervalEnd?: number;
-  customTimesteps?: string;
-  useCotMetas?: boolean;
-  useCotCaption?: boolean;
-  useCotLanguage?: boolean;
-  autogen?: boolean;
-  constrainedDecodingDebug?: boolean;
-  allowLmBatch?: boolean;
-  getScores?: boolean;
-  getLrc?: boolean;
-  scoreScale?: number;
-  lmBatchChunkSize?: number;
-  trackName?: string;
-  completeTrackClasses?: string[];
-  isFormatCaption?: boolean;
-  ditModel?: string;
-}
-
 router.post('/upload-audio', authMiddleware, (req: AuthenticatedRequest, res: Response, next: Function) => {
   audioUpload.single('audio')(req, res, (err: any) => {
     if (err) { res.status(400).json({ error: err.message || 'Invalid file upload' }); return; }
@@ -149,7 +92,7 @@ router.post('/upload-audio', authMiddleware, (req: AuthenticatedRequest, res: Re
 
 router.post('/', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const body = req.body as GenerateBody;
+    const body = req.body as GenerationParams;
     if (!body.customMode && !body.songDescription) { res.status(400).json({ error: 'Song description required for simple mode' }); return; }
     if (body.customMode && !body.style && !body.lyrics && !body.referenceAudioUrl) { res.status(400).json({ error: 'Style, lyrics, or reference audio required for custom mode' }); return; }
 

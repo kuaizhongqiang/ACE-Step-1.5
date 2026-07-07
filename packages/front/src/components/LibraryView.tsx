@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Song, Playlist } from '../types';
+import { Song, Playlist, ReferenceTrack } from '../types';
 import { Heart, Plus, Music, Play, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { SongDropdownMenu } from './SongDropdownMenu';
@@ -19,17 +19,6 @@ interface LibraryViewProps {
   onReusePrompt?: (song: Song) => void;
   onDeleteSong?: (song: Song) => void;
   onDeleteReferenceTrack?: (trackId: string) => void;
-}
-
-interface ReferenceTrack {
-    id: string;
-    filename: string;
-    storage_key: string;
-    duration: number | null;
-    file_size_bytes: number | null;
-    tags: string[] | null;
-    created_at: string;
-    audio_url: string;
 }
 
 export const LibraryView: React.FC<LibraryViewProps> = ({
@@ -254,7 +243,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                 <div className="flex-1 min-w-0">
                                     <div className="text-sm font-medium text-zinc-900 dark:text-white truncate">{track.filename}</div>
                                     <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                                        {formatBytes(track.file_size_bytes)} • {new Date(track.created_at).toLocaleDateString()}
+                                        {formatBytes(track.fileSizeBytes)} • {new Date(track.createdAt).toLocaleDateString()}
                                     </div>
                                 </div>
                                 <button

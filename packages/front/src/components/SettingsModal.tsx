@@ -52,8 +52,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, t
                     <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-6">
                         <div className="flex items-center gap-4">
                             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg overflow-hidden">
-                                {user.avatar_url ? (
-                                    <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                                {user.avatarUrl ? (
+                                    <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
                                 ) : (
                                     user.username[0].toUpperCase()
                                 )}

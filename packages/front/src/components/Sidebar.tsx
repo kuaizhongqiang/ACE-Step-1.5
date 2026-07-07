@@ -8,7 +8,7 @@ interface SidebarProps {
   onNavigate: (view: View) => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
-  user?: { username: string; isAdmin?: boolean; avatar_url?: string } | null;
+  user?: { username: string; isAdmin?: boolean; avatar_url?: string; avatarUrl?: string } | null;
   onLogin?: () => void;
   onLogout?: () => void;
   onOpenSettings?: () => void;
@@ -142,8 +142,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 title={`${user.username} - ${t('settings')}`}
               >
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold border border-white/20 overflow-hidden flex-shrink-0">
-                  {user.avatar_url ? (
-                    <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                  {user.avatarUrl ? (
+                    <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
                   ) : (
                     user.username.charAt(0).toUpperCase()
                   )}

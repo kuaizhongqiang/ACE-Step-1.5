@@ -97,7 +97,7 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBa
         </div>
     );
 
-    const isOwner = currentUser?.id === playlist.user_id;
+    const isOwner = currentUser?.id === playlist.userId;
 
     // Gradient based on ID/Name
     const gradients = [
@@ -114,8 +114,8 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBa
             <div className="flex-shrink-0 p-4 md:p-8 pt-12 md:pt-8 flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-end bg-black/20 backdrop-blur-lg border-b border-white/10">
                 {/* Cover */}
                 <div className="w-32 h-32 md:w-52 md:h-52 shadow-2xl rounded-lg bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0 group relative">
-                    {playlist.cover_url ? (
-                        <img src={playlist.cover_url} alt={playlist.name} className="w-full h-full object-cover" />
+                    {playlist.coverUrl ? (
+                        <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover" />
                     ) : (
                         <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center">
                             <Music size={40} className="text-white/20 md:hidden" />
@@ -183,7 +183,7 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBa
                 <div className="flex-1"></div>
 
                 <div className="text-zinc-400 text-xs md:text-sm">
-                    {playlist.is_public ? t('public') : t('private')}
+                    {playlist.isPublic ? t('public') : t('private')}
                 </div>
             </div>
 

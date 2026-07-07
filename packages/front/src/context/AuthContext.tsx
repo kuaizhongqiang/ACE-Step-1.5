@@ -7,6 +7,8 @@ interface AuthUser {
   bio?: string;
   avatar_url?: string;
   banner_url?: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
   createdAt?: string;
 }
 

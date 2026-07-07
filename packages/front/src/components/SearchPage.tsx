@@ -33,12 +33,12 @@ export const SearchPage: React.FC<SearchPageProps> = ({
   const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredSongs, setFeaturedSongs] = useState<ExtendedSong[]>([]);
-  const [featuredCreators, setFeaturedCreators] = useState<Array<UserProfile & { song_count?: number }>>([]);
-  const [featuredPlaylists, setFeaturedPlaylists] = useState<Array<Playlist & { creator?: string; creator_avatar?: string; song_count?: number }>>([]);
+  const [featuredCreators, setFeaturedCreators] = useState<Array<UserProfile & { songCount?: number }>>([]);
+  const [featuredPlaylists, setFeaturedPlaylists] = useState<Array<Playlist & { creator?: string; creator_avatar?: string; songCount?: number }>>([]);
   const [searchResults, setSearchResults] = useState<{
     songs: ExtendedSong[];
-    creators: Array<UserProfile & { song_count?: number }>;
-    playlists: Array<Playlist & { creator?: string; creator_avatar?: string; song_count?: number }>;
+    creators: Array<UserProfile & { songCount?: number }>;
+    playlists: Array<Playlist & { creator?: string; creator_avatar?: string; songCount?: number }>;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
@@ -134,7 +134,7 @@ export const SearchPage: React.FC<SearchPageProps> = ({
       setSearchResults({
         songs: (results.songs || []).slice(0, MAX_RESULTS).map(transformSong),
         creators: (results.creators || []).slice(0, MAX_RESULTS),
-        playlists: (results.playlists || []).slice(0, MAX_RESULTS),
+        playlists: (results.playlists || []).slice(0, MAX_RESULTS) as any,
       });
     } catch (error) {
       console.error('Search failed:', error);
@@ -576,7 +576,7 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({
     >
       <div className="aspect-square rounded-lg overflow-hidden mb-2 shadow-md relative bg-zinc-200 dark:bg-zinc-800">
         <img
-          src={playlist.cover_url || `https://picsum.photos/seed/${playlist.id}/400/400`}
+          src={playlist.coverUrl || `https://picsum.photos/seed/${playlist.id}/400/400`}
           alt={playlist.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
@@ -585,7 +585,7 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({
       <div className="font-semibold text-zinc-900 dark:text-white text-sm truncate group-hover:text-pink-500 transition-colors">
         {playlist.name}
       </div>
-      <div className="text-[11px] text-zinc-500 mb-1">{playlist.song_count || 0} {t('songs')}</div>
+      <div className="text-[11px] text-zinc-500 mb-1">{playlist.songCount || 0} {t('songs')}</div>
       {playlist.creator && (
         <div
           className="flex items-center gap-1.5 cursor-pointer"

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Song } from '../types';
+import { Song, ReferenceTrack } from '../types';
 import { Play, MoreHorizontal, Heart, ThumbsDown, ListPlus, Pause, Search, Filter, Check, Globe, Lock, Loader2, ThumbsUp, Share2, Video, Info, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../context/I18nContext';
@@ -13,7 +13,7 @@ interface SongListProps {
     selectedSong: Song | null;
     likedSongIds: Set<string>;
     isPlaying: boolean;
-    referenceTracks?: { id: string; filename: string; audio_url: string; duration?: number | null; created_at?: string }[];
+    referenceTracks?: ReferenceTrack[];
     onPlay: (song: Song) => void;
     onSelect: (song: Song) => void;
     onToggleLike: (songId: string) => void;
@@ -27,8 +27,8 @@ interface SongListProps {
     onDeleteMany?: (songs: Song[]) => void;
     onUseAsReference?: (song: Song) => void;
     onCoverSong?: (song: Song) => void;
-    onUseUploadAsReference?: (track: { audio_url: string; filename: string }) => void;
-    onCoverUpload?: (track: { audio_url: string; filename: string }) => void;
+    onUseUploadAsReference?: (track: ReferenceTrack) => void;
+    onCoverUpload?: (track: ReferenceTrack) => void;
 }
 
 // ... existing code ...
@@ -200,7 +200,7 @@ export const SongList: React.FC<SongListProps> = ({
         const uploadItems = filteredUploads.map(track => ({
             type: 'upload' as const,
             id: track.id,
-            createdAt: new Date(track.created_at || Date.now()),
+            createdAt: new Date(track.createdAt || Date.now()),
             track
         }));
         return [...songItems, ...uploadItems].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -784,7 +784,7 @@ const SongItem: React.FC<SongItemProps> = ({
 };
 
 const UploadItem: React.FC<{
-    track: { id: string; filename: string; audio_url: string; duration?: number | null };
+    track: ReferenceTrack;
     onPlay: (audioUrl: string, title: string) => void;
     onUseAsReference?: () => void;
     onCoverSong?: () => void;
@@ -804,7 +804,7 @@ const UploadItem: React.FC<{
                 duration,
                 createdAt: new Date(),
                 tags: [],
-                audioUrl: track.audio_url,
+                audioUrl: track.audioUrl,
                 isPublic: false,
             } as Song}
             isCurrent={false}
@@ -814,8 +814,8 @@ const UploadItem: React.FC<{
             isLiked={false}
             isPlaying={false}
             isOwner={false}
-            onPlay={() => onPlay(track.audio_url, title)}
-            onSelect={() => onPlay(track.audio_url, title)}
+            onPlay={() => onPlay(track.audioUrl, title)}
+            onSelect={() => onPlay(track.audioUrl, title)}
             onToggleSelect={() => undefined}
             onToggleLike={() => undefined}
             onAddToPlaylist={() => undefined}

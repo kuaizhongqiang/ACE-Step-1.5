@@ -1,22 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Sparkles, ChevronDown, Settings2, Trash2, Music2, Sliders, Dices, Hash, RefreshCw, Plus, Upload, Play, Pause, Loader2 } from 'lucide-react';
-import { GenerationParams, Song } from '../types';
+import { GenerationParams, Song, ReferenceTrack } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../context/I18nContext';
 import { generateApi } from '../services/api';
 import { MAIN_STYLES } from '@data/genres';
 import { EditableSlider } from './EditableSlider';
-
-interface ReferenceTrack {
-  id: string;
-  filename: string;
-  storage_key: string;
-  duration: number | null;
-  file_size_bytes: number | null;
-  tags: string[] | null;
-  created_at: string;
-  audio_url: string;
-}
 
 interface CreatePanelProps {
   onGenerate: (params: GenerationParams) => void;

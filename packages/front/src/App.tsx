@@ -9,7 +9,7 @@ import { CreatePlaylistModal, AddToPlaylistModal } from './components/PlaylistMo
 import { VideoGeneratorModal } from './components/VideoGeneratorModal';
 import { SettingsModal } from './components/SettingsModal';
 import { SongProfile } from './components/SongProfile';
-import { Song, GenerationParams, View, Playlist } from './types';
+import { Song, GenerationParams, View, Playlist, ReferenceTrack } from './types';
 import { generateApi, songsApi, playlistsApi, getAudioUrl } from './services/api';
 import { generateCoverUrl } from './utils/cover';
 import { useAuth } from './context/AuthContext';
@@ -124,17 +124,6 @@ function AppContent() {
     onConfirm: () => void;
   } | null>(null);
 
-  interface ReferenceTrack {
-    id: string;
-    filename: string;
-    storage_key: string;
-    duration: number | null;
-    file_size_bytes: number | null;
-    tags: string[] | null;
-    created_at: string;
-    audio_url: string;
-  }
-
   const showToast = (message: string, type: ToastType = 'success') => {
     setToast({ message, type, isVisible: true });
   };
@@ -147,7 +136,7 @@ function AppContent() {
   useEffect(() => {
     if (token) {
       playlistsApi.getMyPlaylists(token)
-        .then(res => setPlaylists(res.playlists))
+        .then(res => setPlaylists(res.playlists as any))
         .catch(err => console.error('Failed to load playlists', err));
     } else {
       setPlaylists([]);
@@ -1088,12 +1077,12 @@ function AppContent() {
     if (!token) return;
     try {
       const res = await playlistsApi.create(name, description, true, token);
-      setPlaylists(prev => [res.playlist, ...prev]);
+      setPlaylists(prev => [res.playlist as any, ...prev]);
 
       if (songToAddToPlaylist) {
         await playlistsApi.addSong(res.playlist.id, songToAddToPlaylist.id, token);
         setSongToAddToPlaylist(null);
-        playlistsApi.getMyPlaylists(token).then(r => setPlaylists(r.playlists)).catch(() => {});
+        playlistsApi.getMyPlaylists(token).then(r => setPlaylists(r.playlists as any)).catch(() => {});
       }
       showToast(t('playlistCreated'));
     } catch (error) {
@@ -1113,7 +1102,7 @@ function AppContent() {
       await playlistsApi.addSong(playlistId, songToAddToPlaylist.id, token);
       setSongToAddToPlaylist(null);
       showToast(t('songAddedToPlaylist'));
-      playlistsApi.getMyPlaylists(token).then(r => setPlaylists(r.playlists)).catch(() => {});
+      playlistsApi.getMyPlaylists(token).then(r => setPlaylists(r.playlists as any)).catch(() => {});
     } catch (error) {
       console.error('Add song error:', error);
       showToast(t('failedToAddSong'), 'error');
@@ -1140,20 +1129,20 @@ function AppContent() {
     setMobileShowList(false);
   };
 
-  const handleUseUploadAsReference = (track: { audio_url: string; filename: string }) => {
+  const handleUseUploadAsReference = (track: ReferenceTrack) => {
     setPendingAudioSelection({
       target: 'reference',
-      url: track.audio_url,
+      url: track.audioUrl,
       title: track.filename.replace(/\.[^/.]+$/, ''),
     });
     setCurrentView('create');
     setMobileShowList(false);
   };
 
-  const handleCoverUpload = (track: { audio_url: string; filename: string }) => {
+  const handleCoverUpload = (track: ReferenceTrack) => {
     setPendingAudioSelection({
       target: 'source',
-      url: track.audio_url,
+      url: track.audioUrl,
       title: track.filename.replace(/\.[^/.]+$/, ''),
     });
     setCurrentView('create');
