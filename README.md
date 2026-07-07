@@ -92,17 +92,23 @@ npm run dev -w packages/front                        # React 前端 :3000
 ## 📖 CLI 命令
 
 ```bash
-node packages/cli/src/cli.mjs help          # 帮助
-node packages/cli/src/cli.mjs start         # 启动全部服务
-node packages/cli/src/cli.mjs start engine  # 仅启动 Python 引擎
-node packages/cli/src/cli.mjs start server  # 仅启动 Express 服务
-node packages/cli/src/cli.mjs stop          # 停止服务
-node packages/cli/src/cli.mjs status        # 运行状态
-node packages/cli/src/cli.mjs health        # 健康检查
-node packages/cli/src/cli.mjs logs -f       # 实时日志
-node packages/cli/src/cli.mjs config        # 配置查看
-node packages/cli/src/cli.mjs list styles   # 列出音乐风格
-node packages/cli/src/cli.mjs generate "jazz" # CLI 生成音乐
+acestep help                  # 帮助
+acestep install               # 首次安装（依赖 + 模型）
+acestep dev                   # 开发模式（引擎 + 服务 + 前端）
+acestep start                 # 启动 Express 服务
+acestep start engine          # 启动 Python 引擎
+acestep stop                  # 停止服务
+acestep status                # 运行状态
+acestep health                # 健康检查
+acestep model list            # 列出可用模型
+acestep model switch <name>   # 切换模型
+acestep model download [name] # 下载模型
+acestep generate "描述"       # CLI 生成音乐
+acestep build                 # 构建前端生产包
+acestep cleanup               # 清理临时文件
+acestep logs -f               # 实时日志
+acestep config                # 配置查看
+acestep list styles           # 列出音乐风格
 ```
 
 ## 🗺 API 路由
