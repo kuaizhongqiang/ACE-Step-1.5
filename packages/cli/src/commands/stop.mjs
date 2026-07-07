@@ -8,12 +8,12 @@ export default async function stopCmd(subcommand, flags, options) {
   }
 
   if (subcommand === 'llm') {
-    output.auto('LLM is a remote API, cannot stop locally', { message: 'LLM is remote API' });
+    output.auto('LLM 是远程 API，无法本地停止', { message: 'LLM is remote API' });
     output.exit(0);
     return;
   }
   if (subcommand === 'music') {
-    output.auto('Use Gradio API to stop music generation', { message: 'Stop via Gradio API' });
+    output.auto('请通过 Gradio API 停止音乐生成', { message: 'Stop via Gradio API' });
     output.exit(0);
     return;
   }
@@ -24,7 +24,8 @@ export default async function stopCmd(subcommand, flags, options) {
 async function stopService(service, flags, options) {
   const currentPid = pid.readPid(service);
   if (!currentPid || !pid.isAlive(currentPid)) {
-    output.auto(`${service.charAt(0).toUpperCase() + service.slice(1)} is not running`, { running: false });
+    const svcName = service === 'engine' ? '引擎' : '服务';
+    output.auto(`${svcName}未在运行`, { running: false });
     output.exit(3);
     return;
   }
@@ -33,7 +34,8 @@ async function stopService(service, flags, options) {
   const result = await stopDaemon(currentPid, { timeout, force: !!flags.force });
   pid.cleanPid(service);
 
-  output.auto(`${service.charAt(0).toUpperCase() + service.slice(1)} stopped (${result.method})`, {
+  const svcName = service === 'engine' ? '引擎' : '服务';
+  output.auto(`${svcName}已停止 (${result.method})`, {
     success: true, method: result.method, service,
   });
   output.exit(0);

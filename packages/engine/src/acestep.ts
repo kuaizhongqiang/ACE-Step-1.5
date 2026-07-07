@@ -17,6 +17,7 @@ import { config } from './config.js';
 import {
   switchModelIfNeeded, checkSpaceHealth, discoverEndpoints, resetClient,
 } from './model.js';
+export { switchModelIfNeeded };
 import { getGradioClient, isGradioAvailable } from './gradio-client.js';
 import { buildGradioArgs, parseGenerationDetails } from './params.js';
 import { processGenerationViaPython, resolvePythonPath } from './python.js';

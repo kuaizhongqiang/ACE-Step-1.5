@@ -221,7 +221,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, t
                                             {t('follow')} @AmbsdOP
                                         </a>
                                         <a
-                                            href="https://github.com/fspecii/ace-step-ui"
+                                            href="https://github.com/kuaizhongqiang/ACE-Step-1.5"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800 dark:bg-zinc-700 text-white rounded-lg text-sm font-medium hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-colors"

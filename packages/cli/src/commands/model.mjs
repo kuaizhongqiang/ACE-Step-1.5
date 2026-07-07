@@ -2,6 +2,7 @@
  * Model command — list, switch, download DiT models
  */
 import { execSync } from 'child_process';
+import { switchModelIfNeeded } from '@acestep/engine';
 import output from '../output.mjs';
 
 export default async function modelCmd(subcommand, flags, options, positionals) {
@@ -9,7 +10,7 @@ export default async function modelCmd(subcommand, flags, options, positionals) 
     case 'list':
       return listModels();
     case 'switch':
-      return switchModel(positionals[0]);
+      return switchModel(positionals[0], flags);
     case 'download':
       return downloadModel(positionals[0], flags);
     default:
@@ -29,20 +30,26 @@ function listModels() {
   output.exit(0);
 }
 
-function switchModel(name) {
+async function switchModel(name, flags) {
   if (!name) {
-    output.printError('请指定模型名称\n');
+    output.printError('请指定模型名称，例如: acestep model switch acestep-v15-turbo\n');
     output.exit(1);
     return;
   }
-  output.print(`切换模型至: ${name}\n`);
-  output.print('请在 Gradio UI 或 API 中设置 model 参数。\n');
-  output.exit(0);
+  output.print(`正在切换模型至: ${name}...\n`);
+  try {
+    await switchModelIfNeeded(name);
+    output.print(`模型已切换至: ${name}\n`);
+    output.exit(0);
+  } catch (err) {
+    output.printError(`模型切换失败: ${err.message}\n`);
+    output.exit(1);
+  }
 }
 
 function downloadModel(name, flags) {
   if (name) {
-    output.print(`下载模型: ${name}...\n`);
+    output.print(`正在下载模型: ${name}...\n`);
     try {
       execSync(`uv run acestep-download --model ${name}`, { stdio: 'inherit', timeout: 600000 });
     } catch {
@@ -50,7 +57,7 @@ function downloadModel(name, flags) {
       output.exit(1);
     }
   } else {
-    output.print('下载默认模型...\n');
+    output.print('正在下载默认模型...\n');
     try {
       execSync('uv run acestep-download', { stdio: 'inherit', timeout: 600000 });
     } catch {

@@ -25,7 +25,7 @@ export default async function startCmd(subcommand, flags, options) {
 async function startServer(flags, options) {
   const existingPid = pid.readPid('server');
   if (existingPid && pid.isAlive(existingPid)) {
-    output.auto('Server is already running', { running: true, pid: existingPid });
+    output.auto('服务已在运行中', { running: true, pid: existingPid });
     output.exit(2);
     return;
   }
@@ -33,7 +33,7 @@ async function startServer(flags, options) {
   const port = options.port || getDefaultPort('server', '3001');
 
   if (flags.foreground) {
-    output.print('Starting server in foreground mode...');
+    output.print('正在前台启动服务...\n');
     const child = spawn('npx', ['tsx', 'packages/server/src/index.ts'], {
       cwd: ROOT_DIR, stdio: 'inherit',
       env: { ...process.env, PORT: String(port) },
@@ -44,10 +44,10 @@ async function startServer(flags, options) {
 
   try {
     const result = await spawnServer({ port: parseInt(port, 10) });
-    output.auto('Server started\n  PID: ' + result.pid + '\n  Port: ' + result.port, result);
+    output.auto('服务已启动\n  PID: ' + result.pid + '\n  端口: ' + result.port, result);
     output.exit(0);
   } catch (err) {
-    output.printError('Failed to start server: ' + err.message);
+    output.printError('服务启动失败: ' + err.message);
     output.exit(1);
   }
 }
@@ -55,7 +55,7 @@ async function startServer(flags, options) {
 async function startEngine(flags, options) {
   const existingPid = pid.readPid('engine');
   if (existingPid && pid.isAlive(existingPid)) {
-    output.auto('Engine is already running', { running: true, pid: existingPid });
+    output.auto('引擎已在运行中', { running: true, pid: existingPid });
     output.exit(2);
     return;
   }
@@ -63,7 +63,7 @@ async function startEngine(flags, options) {
   const port = options.port || getDefaultPort('engine', '7860');
 
   if (flags.foreground) {
-    output.print('Starting engine in foreground mode...');
+    output.print('正在前台启动引擎...\n');
     const child = spawn('uv', ['run', 'acestep', '--port', String(port)], {
       cwd: ROOT_DIR, stdio: 'inherit',
       env: { ...process.env, GRADIO_PORT: String(port) },
@@ -74,10 +74,10 @@ async function startEngine(flags, options) {
 
   try {
     const result = await spawnEngine({ port: parseInt(port, 10) });
-    output.auto('Engine started\n  PID: ' + result.pid + '\n  Port: ' + result.port, result);
+    output.auto('引擎已启动\n  PID: ' + result.pid + '\n  端口: ' + result.port, result);
     output.exit(0);
   } catch (err) {
-    output.printError('Failed to start engine: ' + err.message);
+    output.printError('引擎启动失败: ' + err.message);
     output.exit(1);
   }
 }
