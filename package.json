@@ -1,6 +1,6 @@
 {
   "name": "ace-step",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "ACE-Step 全栈音乐生成工具 — Python 引擎 + Node.js 编排 + React 前端",
   "workspaces": [
