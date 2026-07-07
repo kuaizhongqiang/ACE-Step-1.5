@@ -35,6 +35,8 @@ async function main() {
     case 'dev':     return (await import('./src/cli/commands/dev.mjs')).default(flags, options);
     case 'list':    return (await import('./src/cli/commands/list.mjs')).default(subcommand, flags, options, positionals);
     case 'logs':    return (await import('./src/cli/commands/logs.mjs')).default(flags, options);
+    case 'install': return (await import('./src/cli/commands/install.mjs')).default(flags, options);
+    case 'model':   return (await import('./src/cli/commands/model.mjs')).default(subcommand, flags, options, positionals);
     case 'build':   return (await import('./src/cli/commands/build.mjs')).default(flags, options);
     case 'cleanup': return (await import('./src/cli/commands/cleanup.mjs')).default(subcommand, flags, options);
     case 'generate':return (await import('./src/cli/commands/generate.mjs')).default(subcommand, flags, options, positionals);
