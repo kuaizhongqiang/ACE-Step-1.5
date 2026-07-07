@@ -13,9 +13,7 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [language, setLanguage] = useState<Language>(() => {
     const stored = localStorage.getItem('language') as Language;
     if (stored === 'zh' || stored === 'en' || stored === 'ja' || stored === 'ko') return stored;
-    // Detect browser language for Chinese users
-    const browserLang = typeof navigator !== 'undefined' ? navigator.language : '';
-    return browserLang.startsWith('zh') ? 'zh' : 'en';
+    return 'zh';
   });
 
   const handleSetLanguage = (lang: Language) => {
