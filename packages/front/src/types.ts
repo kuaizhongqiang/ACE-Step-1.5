@@ -1,7 +1,6 @@
 /**
  * 前端类型定义
- * 通用类型从 @acestep/shared 导入并重新导出
- * 仅保留前端特有的类型扩展
+ * 通用类型从 @acestep/shared 导入，前端专用扩展在此添加
  */
 
 // ── 从 shared 导入并重新导出 ─────────────────────────────────────────────────
@@ -14,70 +13,42 @@ export type {
   AuthResponse,
   SearchResult,
   ContactFormData,
+  UserProfile,
 } from '@acestep/shared';
 
-// ── 前端特有 Song 类型（扩展 shared × 前端渲染字段）─────────────────────────
-// TODO(M2): 类型归一化 — 统一为 @acestep/shared 后移除本地定义
-export interface Song {
-  id: string;
-  title: string;
-  lyrics: string;
-  style: string;
-  coverUrl: string;
-  duration: string;        // 前端格式 "2:30"，不同于 shared 的 duration?: number
-  createdAt: Date;          // Date 对象，不同于 shared 的 string
-  isGenerating?: boolean;
-  queuePosition?: number;
-  progress?: number;
-  stage?: string;
-  generationParams?: any;
-  tags: string[];
-  audioUrl?: string;
-  isPublic?: boolean;
-  likeCount?: number;
-  viewCount?: number;
-  userId?: string;
-  creator?: string;
-  creator_avatar?: string;
-  ditModel?: string;
+import type {
+  Song as SharedSong,
+  Playlist as SharedPlaylist,
+  User as SharedUser,
+} from '@acestep/shared';
+
+// ── 前端 Song 类型 — 扩展 shared 以适应前端渲染需求 ─────────────────────────
+// shared 的 Song 使用 camelCase + number/string 类型。
+// 前端需要 Date 对象、格式化字符串等，因此做 Omit 后重新声明冲突字段。
+export interface Song extends Omit<SharedSong, 'coverUrl' | 'duration' | 'createdAt'> {
+  coverUrl: string;          // required（shared 为 optional）
+  duration: string;          // 格式化 "2:30"（shared 为 number?）
+  createdAt: Date;           // Date 对象（shared 为 string）
+  creator_avatar?: string;   // snake_case 别名（兼容旧代码）
 }
 
-// ── 前端特有 Playlist 类型 ────────────────────────────────────────────────────
-export interface Playlist {
-  id: string;
-  name: string;
-  description?: string;
+// ── 前端 Playlist 类型 ──────────────────────────────────────────────────────
+export interface Playlist extends Omit<SharedPlaylist, 'coverUrl' | 'createdAt' | 'songCount'> {
   coverUrl?: string;
   cover_url?: string;
-  songIds?: string[];
-  isPublic?: boolean;
   is_public?: boolean;
   user_id?: string;
   creator?: string;
+  creator_avatar?: string;
   created_at?: string;
   song_count?: number;
   songs?: any[];
+  songIds?: string[];
 }
 
-// ── 前端特有 User/UserProfile（字段形状与 shared 不同）────────────────────────
-export interface User {
-  id: string;
-  username: string;
+// ── 前端 User 类型 ──────────────────────────────────────────────────────────
+export interface User extends Omit<SharedUser, 'createdAt' | 'avatarUrl' | 'bannerUrl'> {
   createdAt: Date;
-  followerCount?: number;
-  followingCount?: number;
-  isFollowing?: boolean;
-  isAdmin?: boolean;
   avatar_url?: string;
   banner_url?: string;
-}
-
-export interface UserProfile {
-  user: User;
-  publicSongs: Song[];
-  publicPlaylists: Playlist[];
-  stats: {
-    totalSongs: number;
-    totalLikes: number;
-  };
 }

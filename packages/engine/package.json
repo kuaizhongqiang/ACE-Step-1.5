@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@acestep/shared": "*",
     "@gradio/client": "^2.0.0"
   },
   "devDependencies": {

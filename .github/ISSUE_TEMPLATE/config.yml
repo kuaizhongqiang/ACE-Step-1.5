@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 项目文档
+    url: https://github.com/kuaizhongqiang/ACE-Step-1.5/tree/main/docs
+    about: 查阅架构设计、迁移方案和开发指南
+  - name: 💬 讨论区
+    url: https://github.com/kuaizhongqiang/ACE-Step-1.5/discussions
+    about: 提问、分享使用经验或参与社区讨论
+  - name: 🔒 安全漏洞报告
+    url: https://github.com/kuaizhongqiang/ACE-Step-1.5/security
+    about: 请勿公开报告安全漏洞，通过此链接私密提交

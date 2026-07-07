@@ -286,19 +286,19 @@ function AppContent() {
           style: s.style,
           coverUrl: generateCoverUrl(s.id),
           duration: s.duration && s.duration > 0 ? `${Math.floor(s.duration / 60)}:${String(Math.floor(s.duration % 60)).padStart(2, '0')}` : '0:00',
-          createdAt: new Date(s.created_at || s.createdAt),
+          createdAt: new Date(s.createdAt || new Date().toISOString()),
           tags: s.tags || [],
-          audioUrl: getAudioUrl(s.audio_url, s.id),
-          isPublic: s.is_public,
-          likeCount: s.like_count || 0,
-          viewCount: s.view_count || 0,
-          userId: s.user_id,
+          audioUrl: getAudioUrl(s.audioUrl, s.id),
+          isPublic: s.isPublic,
+          likeCount: s.likeCount || 0,
+          viewCount: s.viewCount || 0,
+          userId: s.userId,
           creator: s.creator,
           ditModel: s.ditModel,
           generationParams: (() => {
             try {
-              if (!s.generation_params) return undefined;
-              return typeof s.generation_params === 'string' ? JSON.parse(s.generation_params) : s.generation_params;
+              if (!s.generationParams) return undefined;
+              return typeof s.generationParams === 'string' ? JSON.parse(s.generationParams) : s.generationParams;
             } catch {
               return undefined;
             }
@@ -625,19 +625,19 @@ function AppContent() {
         style: s.style,
         coverUrl: generateCoverUrl(s.id),
         duration: s.duration && s.duration > 0 ? `${Math.floor(s.duration / 60)}:${String(Math.floor(s.duration % 60)).padStart(2, '0')}` : '0:00',
-        createdAt: new Date(s.created_at),
+        createdAt: new Date(s.createdAt),
         tags: s.tags || [],
-        audioUrl: getAudioUrl(s.audio_url, s.id),
-        isPublic: s.is_public,
-        likeCount: s.like_count || 0,
-        viewCount: s.view_count || 0,
-        userId: s.user_id,
+        audioUrl: getAudioUrl(s.audioUrl, s.id),
+        isPublic: s.isPublic,
+        likeCount: s.likeCount || 0,
+        viewCount: s.viewCount || 0,
+        userId: s.userId,
         creator: s.creator,
         ditModel: s.ditModel,
         generationParams: (() => {
           try {
-            if (!s.generation_params) return undefined;
-            return typeof s.generation_params === 'string' ? JSON.parse(s.generation_params) : s.generation_params;
+            if (!s.generationParams) return undefined;
+            return typeof s.generationParams === 'string' ? JSON.parse(s.generationParams) : s.generationParams;
           } catch {
             return undefined;
           }
@@ -732,6 +732,8 @@ function AppContent() {
     coverUrl: generateCoverUrl(`pending_${Date.now()}`),
     duration: '--:--',
     createdAt: createdAt ? new Date(createdAt) : new Date(),
+    likeCount: 0,
+    viewCount: 0,
     isGenerating: true,
     tags: params.customMode ? ['custom'] : ['simple'],
     isPublic: true,
@@ -755,6 +757,8 @@ function AppContent() {
       coverUrl: generateCoverUrl(`pending_${Date.now()}`),
       duration: '--:--',
       createdAt: new Date(),
+      likeCount: 0,
+      viewCount: 0,
       isGenerating: true,
       tags: params.customMode ? ['custom'] : ['simple'],
       isPublic: true
@@ -869,7 +873,7 @@ function AppContent() {
               }
             })();
 
-            next.unshift(buildTempSongFromParams(params, tempId, job.created_at));
+            next.unshift(buildTempSongFromParams(params, tempId, job.createdAt));
             existingIds.add(tempId);
           }
           return next;

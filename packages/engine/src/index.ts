@@ -16,10 +16,12 @@ export {
 } from './acestep.js';
 
 export type {
-  GenerationParams,
   JobStatus,
   GenerationResult,
 } from './acestep.js';
+
+// Re-export shared types for convenience
+export type { GenerationParams } from '@acestep/shared';
 
 export {
   getGradioClient,

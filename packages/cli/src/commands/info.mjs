@@ -19,7 +19,7 @@ export default async function infoCmd(flags) {
   const env = readEnv();
 
   const info = {
-    name: pkg.name || 'ace-step-ui',
+    name: pkg.name || 'ACE-Step-1.5',
     version: pkg.version || 'unknown',
     description: pkg.description || 'Local AI Music Generator',
     paths: {

@@ -44,7 +44,7 @@ export const config = {
 
   // Simplified JWT
   jwt: {
-    secret: process.env.JWT_SECRET || 'ace-step-ui-local-secret',
+    secret: process.env.JWT_SECRET || 'ace-step-1.5-local-secret',
     expiresIn: '365d',
   },
 };

@@ -1,0 +1,152 @@
+name: Publish npm Packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: '要发布的包（留空发布全部）'
+        required: false
+        type: choice
+        options:
+          - 'all'
+          - '@acestep/shared'
+          - '@acestep/engine'
+          - '@acestep/server'
+          - '@acestep/cli'
+          - '@acestep/front'
+
+permissions:
+  contents: read
+
+jobs:
+  # ============================================================
+  # 阶段 1: 质量门禁
+  # ============================================================
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: TypeScript 类型检查 (shared)
+        run: npx tsc -p packages/shared/tsconfig.json --noEmit
+
+      - name: TypeScript 类型检查 (engine)
+        run: npx tsc -p packages/engine/tsconfig.json --noEmit
+
+      - name: TypeScript 类型检查 (server)
+        run: npx tsc -p packages/server/tsconfig.json --noEmit
+
+      - name: TypeScript 类型检查 (front)
+        run: npx tsc -p packages/front/tsconfig.json --noEmit
+        continue-on-error: true
+
+      - name: CLI 语法检查
+        run: node --check packages/cli/src/cli.mjs
+
+      - name: 前端构建验证
+        run: npm run build -w packages/front
+        continue-on-error: true
+
+  # ============================================================
+  # 阶段 2: 发布（质量门禁通过后执行）
+  # ============================================================
+  publish:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - '@acestep/shared'
+          - '@acestep/engine'
+          - '@acestep/server'
+          - '@acestep/cli'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 获取 tag 版本
+        id: version
+        run: |
+          TAG_VERSION="${{ github.ref_name }}"
+          # 去掉 v 前缀
+          VERSION="${TAG_VERSION#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "发布版本: $VERSION"
+
+      - name: 同步版本号到 ${{ matrix.package }}
+        run: |
+          node -e "
+            const pkg = require('./packages/${{ matrix.package == '@acestep/shared' && 'shared' || matrix.package == '@acestep/engine' && 'engine' || matrix.package == '@acestep/server' && 'server' || matrix.package == '@acestep/cli' && 'cli' || 'front' }}/package.json');
+            pkg.version = '${{ steps.version.outputs.version }}';
+            require('fs').writeFileSync(
+              './packages/${{ matrix.package == '@acestep/shared' && 'shared' || matrix.package == '@acestep/engine' && 'engine' || matrix.package == '@acestep/server' && 'server' || matrix.package == '@acestep/cli' && 'cli' || 'front' }}/package.json',
+              JSON.stringify(pkg, null, 2) + '\n'
+            );
+          "
+
+      - name: 发布 ${{ matrix.package }} 到 npm
+        run: |
+          cd packages/${{ matrix.package == '@acestep/shared' && 'shared' || matrix.package == '@acestep/engine' && 'engine' || matrix.package == '@acestep/server' && 'server' || matrix.package == '@acestep/cli' && 'cli' || 'front' }}
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ============================================================
+  # 阶段 3: 创建 GitHub Release
+  # ============================================================
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 生成 Changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            echo "## 变更日志" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log "$PREV_TAG..HEAD" --pretty=format:"- %s (%h)" --no-merges >> CHANGELOG.md
+          else
+            echo "## 变更日志" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "首个发布版本。" >> CHANGELOG.md
+          fi
+          cat CHANGELOG.md
+
+      - name: 创建 GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: CHANGELOG.md
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
